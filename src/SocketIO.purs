@@ -1,6 +1,9 @@
 module SocketIO where
 
+import Prelude
+
 import Control.Monad.Eff
+
 import Data.Function
 import Data.Foreign
 import Data.Foreign.Class
@@ -32,7 +35,7 @@ onMsg :: forall eff a. (IsForeign a)
       -> Channel
       -> MsgCallback (F a) eff
       -> Eff (socket :: SocketIO | eff) Unit
-onMsg s c k = runFn3 onImpl s c (k <<< readJSON)
+onMsg s c k = runFn3 onMsgImpl s c (k <<< readJSON)
 
 emit:: forall eff. Socket -> Channel -> Eff (socket :: SocketIO | eff) Unit
 emit = runFn2 emitImpl
@@ -41,6 +44,7 @@ emitMsg:: forall eff a. Socket
        -> Channel
        -> a
        -> Eff (socket :: SocketIO | eff) Unit
-emitMsg s c d = let content = stringify $ toForeign d
-                    emitMsg  = runFn3 emitMsgImpl
-                in emitMsg s c content
+emitMsg s c a = let
+  content = stringify $ toForeign a
+  emitMsg' = runFn3 emitMsgImpl
+  in emitMsg' s c content

@@ -14,9 +14,7 @@ exports.connect = function connect(host) {
 
 exports.onMsgImpl = function onImpl(sock, channel, onMessage) {
   return function() {
-    sock.on(channel, function(m){ 
-      onMessage(m)();
-    });
+    sock.on(channel, function(m){ onMessage(m)(); });
   };
 };
 
