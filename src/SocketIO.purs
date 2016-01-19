@@ -1,4 +1,4 @@
-module Control.SocketIO where
+module SocketIO where
 
 import Control.Monad.Eff
 import Data.Function
@@ -26,14 +26,14 @@ foreign import connect
   \    return io.connect(host);\
   \  };\
   \}" :: forall eff. Host -> (Eff (socket :: SocketIO | eff) Socket)
-  
+
 foreign import onImpl
   "function onImpl(sock, channel, onMessage) {\
   \  return function() {\
   \    sock.on(channel, function(m){ onMessage(m)();});\
   \  };\
   \}" :: forall eff. Fn3 Socket
-                       Channel   
+                       Channel
                        (MsgCallback String eff)
                        (Eff (socket :: SocketIO | eff) Unit)
 
@@ -57,8 +57,8 @@ foreign import emitMsgImpl
                          (Eff (socket :: SocketIO | eff) Unit)
 
 onMsg :: forall eff a. (IsForeign a)
-      => Socket 
-      -> Channel 
+      => Socket
+      -> Channel
       -> MsgCallback (F a) eff
       -> Eff (socket :: SocketIO | eff) Unit
 onMsg s c k = runFn3 onImpl s c (k <<< readJSON)
@@ -72,4 +72,4 @@ emitMsg:: forall eff a. Socket
        -> Eff (socket :: SocketIO | eff) Unit
 emitMsg s c d = let data' = stringify $ toForeign d
                     emitMsg  = runFn3 emitMsgImpl
-                in  emitMsg s c data' 
+                in  emitMsg s c data'
